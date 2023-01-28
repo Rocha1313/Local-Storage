@@ -15,10 +15,11 @@ let storage = JSON.parse(localStorage.getItem("toDoList"));
 if (storage) {
   for (let i = 0; i < storage.length; i++) {
     let li = document.createElement("li");
-    li.innerHTML = storage[i];
+    li.innerHTML = storage[i].text;
     const delButton = document.createElement("button");
     delButton.innerHTML = "x";
     delButton.setAttribute("class", "buttonStyle");
+    li.setAttribute("id", storage[i].id);
     list.appendChild(li);
     li.appendChild(delButton);
   }
@@ -26,9 +27,20 @@ if (storage) {
 
 const removeElement = (button) => {
   button.addEventListener("click", () => {
+    storage = JSON.parse(localStorage.getItem("toDoList"));
     const parent = button.parentElement;
-    console.log(storage.indexOf(button));
-    storage.slice(storage.indexOf(button), 1);
+
+    console.log(storage);
+
+    for (let i = 0; i < storage.length; i++) {
+      if (parent.id == storage[i].id) {
+        console.log("entrei");
+        storage.splice(i, 1);
+      }
+    }
+
+    console.log(storage);
+
     localStorage.setItem("toDoList", JSON.stringify(storage));
     parent.remove();
   });
@@ -56,7 +68,7 @@ add.addEventListener("click", () => {
     const delButton = document.createElement("button");
     delButton.innerHTML = "x";
     delButton.setAttribute("class", "buttonStyle");
-    delButton.setAttribute("id", "0");
+    li.setAttribute("id", "0");
 
     li.innerHTML = text.value;
     list.appendChild(li);
@@ -65,20 +77,13 @@ add.addEventListener("click", () => {
     removeElement(delButton);
     return;
   }
-  let index;
 
-  for (let i = 0; i <= storage.length; i++) {
-    for (let f = 0; f <= storage.length; f++) {
-      if(!storage[i]){
-        index = storage.length;
-        break
-      }
-      if (f == parseInt(storage[i].id)) {
-        break;
-      }
-    }
-    if (index) {
-      break;
+  let index = Number.MIN_SAFE_INTEGER;
+
+  for (let i = 0; i < storage.length; i++) {
+    if (+index <= +storage[i].id) {
+      const number = +storage[i].id + 1;
+      index = "" + number;
     }
   }
 
@@ -93,7 +98,7 @@ add.addEventListener("click", () => {
   const delButton = document.createElement("button");
   delButton.innerHTML = "x";
   delButton.setAttribute("class", "buttonStyle");
-
+  li.setAttribute("id", "" + index);
   li.innerHTML = text.value;
   list.appendChild(li);
   li.appendChild(delButton);
