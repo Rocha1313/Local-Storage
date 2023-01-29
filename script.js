@@ -106,6 +106,7 @@ function configConfirmButton(button, li, textBox) {
       }
     }
     localStorage.setItem("toDoList", JSON.stringify(storage));
+    removeElement(delButton);
     isEditing = false;
   });
 }
@@ -113,7 +114,13 @@ function configConfirmButton(button, li, textBox) {
 function configCancelButton(button, li, textSafe) {
   button.innerHTML = "Cancel";
   button.addEventListener("click", () => {
-    li.innerHTML = textSafe;
+    const editedText = textSafe.split("<button ");
+    li.innerHTML = editedText[0];
+    const delButton = document.createElement("button");
+    delButton.innerHTML = "x";
+    delButton.setAttribute("class", "buttonStyle");
+    li.appendChild(delButton);
+    removeElement(delButton);
     isEditing = false;
   });
 }
