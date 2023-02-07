@@ -9,6 +9,9 @@ const add = document.getElementById("add");
 const remAll = document.getElementById("remAll");
 let list = document.getElementById("list");
 
+let liElements = Array.from(list.children);
+let isEditing = false;
+
 let storage = JSON.parse(localStorage.getItem("toDoList")) || [];
 
 for (let i = 0; i < storage.length; i++) {
@@ -26,7 +29,13 @@ for (let i = 0; i < storage.length; i++) {
 
 function removeElement(button, id) {
   button.addEventListener("click", () => {
-    storage = storage.filter((item) => item.id !== id);
+    
+    for(let i = 0; i < storage.length; i++){
+      if(storage[i].id == id){
+        storage.splice(i, 1);
+        break;
+      }
+    }
     localStorage.setItem("toDoList", JSON.stringify(storage));
     button.parentElement.remove();
   });
@@ -50,10 +59,15 @@ add.addEventListener("click", () => {
   delButton.setAttribute("class", "buttonStyle");
   li.setAttribute("id", "" + index);
   li.innerHTML = text.value;
+  text.value = "";
   list.appendChild(li);
   li.appendChild(delButton);
 
   removeElement(delButton, index);
+
+  li.addEventListener("dblclick", () => {
+    edit(li);
+  })
 });
 
 remAll.addEventListener("click", () => {
@@ -67,27 +81,30 @@ remAll.addEventListener("click", () => {
  * Edit Scripting
  */
 
-let isEditing = false;
+liElements = Array.from(list.children);
 
-const liElements = Array.from(list.children);
 for (let li of liElements) {
   li.addEventListener("dblclick", () => {
-    if (!isEditing) {
-      isEditing = true;
-      const textSafe = li.innerHTML;
-      li.innerHTML = "";
-
-      const textBox = document.createElement("input");
-
-      const confirmButton = document.createElement("button");
-      configConfirmButton(confirmButton, li, textBox);
-
-      const cancelButton = document.createElement("button");
-      configCancelButton(cancelButton, li, textSafe);
-
-      appendChildsToLi(li, textBox, confirmButton, cancelButton);
-    }
+    edit(li);
   });
+}
+
+function edit(li){
+  if (!isEditing) {
+    isEditing = true;
+    const textSafe = li.innerHTML;
+    li.innerHTML = "";
+
+    const textBox = document.createElement("input");
+
+    const confirmButton = document.createElement("button");
+    configConfirmButton(confirmButton, li, textBox);
+
+    const cancelButton = document.createElement("button");
+    configCancelButton(cancelButton, li, textSafe);
+
+    appendChildsToLi(li, textBox, confirmButton, cancelButton);
+  }
 }
 
 function configConfirmButton(button, li, textBox) {
@@ -106,7 +123,7 @@ function configConfirmButton(button, li, textBox) {
       }
     }
     localStorage.setItem("toDoList", JSON.stringify(storage));
-    removeElement(delButton);
+    removeElement(delButton, li.id);
     isEditing = false;
   });
 }
@@ -120,7 +137,7 @@ function configCancelButton(button, li, textSafe) {
     delButton.innerHTML = "x";
     delButton.setAttribute("class", "buttonStyle");
     li.appendChild(delButton);
-    removeElement(delButton);
+    removeElement(delButton, li.id);
     isEditing = false;
   });
 }
